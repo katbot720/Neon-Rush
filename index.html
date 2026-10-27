@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#080817"><title>Platform Quest: The Real Challenge</title>
+<style>
+:root{--cyan:#48f6ff;--pink:#ff4de1;--violet:#8d5bff;--gold:#ffe66d}*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}html,body{height:100%;width:100%;overflow:hidden;background:#080817;color:#f7f8ff;font-family:system-ui,Arial,sans-serif}body{display:grid;place-items:center}button{font:inherit;cursor:pointer;touch-action:manipulation}#game-container{position:relative;width:min(100vw,177.7778dvh);aspect-ratio:16/9;overflow:hidden;background:#080817;touch-action:none}#game-canvas{display:block;width:100%;height:100%;touch-action:none}#game-container:fullscreen,#game-container.expanded{position:fixed;inset:0;width:100vw;height:100dvh;aspect-ratio:auto;z-index:9999;display:grid;place-items:center}#game-container:fullscreen #game-canvas,#game-container.expanded #game-canvas{width:min(100vw,177.7778dvh)!important;height:min(100dvh,56.25vw)!important}
+#hud{position:absolute;z-index:4;top:8px;left:10px;right:10px;display:flex;justify-content:space-between;gap:6px;pointer-events:none}.hudbox{padding:7px 10px;border:1px solid #48f6ff75;border-radius:10px;background:#080b20e8;box-shadow:0 0 16px #48f6ff22;font-size:clamp(10px,1.6vw,15px);line-height:1.5}.hudbox strong{color:var(--gold)}#hudright{display:flex;gap:5px;pointer-events:auto}.hudbtn{padding:7px 9px;border:1px solid #48f6ff88;border-radius:8px;background:#101632ed;color:white;font-size:clamp(10px,1.5vw,14px)}#mobile-controls{position:absolute;z-index:5;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:flex-end;padding:0 15px;pointer-events:none}.ctrlgroup{display:flex;gap:9px;pointer-events:auto}.ctrl{width:clamp(48px,8vw,74px);height:clamp(48px,8vw,74px);border:2px solid #48f6ff9c;border-radius:17px;background:#101832ef;color:white;font-weight:900;font-size:clamp(22px,4vw,32px);touch-action:none;box-shadow:0 0 18px #48f6ff28}.ctrl.jump{width:clamp(62px,10vw,88px);height:clamp(62px,10vw,88px);font-size:clamp(12px,2vw,17px);background:#402078ef;border-color:var(--pink)}.ctrl.pressed{filter:brightness(1.5);transform:scale(.94)}
+.overlay{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:radial-gradient(ellipse at center,#15143be8,#050611f7)}.overlay.hidden{display:none}.card{width:min(480px,96%);max-height:96%;overflow:auto;padding:clamp(15px,3vw,28px);border:1px solid #48f6ff75;border-radius:20px;text-align:center;background:linear-gradient(145deg,#171a3bfa,#090b1cf5);box-shadow:0 0 35px #48f6ff20}.card h1{font-size:clamp(25px,4.5vw,40px);line-height:1.08;text-shadow:0 0 10px var(--cyan),0 0 25px var(--violet);margin-bottom:10px;letter-spacing:.04em}.card h2{color:var(--pink);margin-bottom:10px}.card p{color:#dce4ff;font-size:clamp(12px,1.8vw,15px);line-height:1.5;margin:9px 0}.menu-btn{display:block;width:100%;padding:11px;margin-top:8px;border:1px solid #48f6ff88;border-radius:10px;background:linear-gradient(100deg,#315cff,#883cff);color:white;font-weight:850;font-size:14px;box-shadow:0 0 18px #6e54ff38}.menu-btn.secondary{background:#111832;border-color:#ff4de16b;box-shadow:none}#levelselect .card{width:min(800px,98%);text-align:center}.world-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}.world-tab{padding:10px 5px;border:1px solid #53618d;border-radius:10px;background:#10152b;color:#dce4ff;font-weight:850;font-size:clamp(11px,1.8vw,14px)}.world-tab.active{border-color:var(--cyan);background:linear-gradient(135deg,#17405a,#35215e);color:white;box-shadow:0 0 15px #48f6ff26}.world-tab small{display:block;font-size:10px;font-weight:600;opacity:.8;margin-top:3px}#level-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:14px 0;max-height:55vh;overflow-y:auto;padding:4px;overscroll-behavior:contain}.level-tile{min-height:75px;border:1px solid #48f6ff70;border-radius:12px;background:linear-gradient(145deg,#18264a,#111329);color:#f7f8ff;padding:7px 4px;text-align:center}.level-tile strong{display:block;font-size:20px;color:var(--cyan)}.level-tile span{display:block;font-size:10px;line-height:1.2;margin-top:4px;color:#dce4ff}.level-tile:disabled{opacity:.35;filter:grayscale(.8);cursor:not-allowed}.level-tile.unlocked{border-color:#48f6ffb0;box-shadow:0 0 13px #48f6ff20}.level-tile.current{background:linear-gradient(145deg,#3d2269,#13234a);border-color:var(--pink)}#toast{position:absolute;z-index:6;top:23%;left:5%;right:5%;text-align:center;font-size:clamp(22px,4vw,38px);font-weight:900;color:white;text-shadow:0 0 10px var(--cyan),0 0 24px var(--pink),0 3px 10px #000;pointer-events:none;opacity:0;transition:opacity .2s}#toast.show{opacity:1}#level-hint{position:absolute;z-index:3;bottom:10px;left:0;right:0;text-align:center;color:#d3ddffb8;font-size:clamp(9px,1.4vw,13px);pointer-events:none;text-shadow:0 1px 5px #000}@media(max-width:600px){#level-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.world-tabs{gap:4px}.world-tab{padding:8px 3px}.world-tab small{font-size:9px}.level-tile{min-height:63px}.level-tile strong{font-size:17px}.level-tile span{font-size:9px}#hud{top:max(5px,env(safe-area-inset-top));left:5px;right:5px}.hudbox{padding:5px 6px;font-size:10px}.hudbtn{padding:6px;font-size:10px}#mobile-controls{padding:0 10px;bottom:max(10px,env(safe-area-inset-bottom))}.ctrlgroup{gap:7px}}@media(orientation:landscape) and (max-height:500px){.ctrl{width:46px;height:46px}.ctrl.jump{width:58px;height:58px}.card{padding:10px 16px}.card p{margin:5px 0}.menu-btn{padding:7px;margin-top:5px}}
+</style></head><body><div id="game-container"><canvas id="game-canvas" width="960" height="540"></canvas>
+<div id="hud"><div class="hudbox">LEVEL <strong id="level">1</strong> · <span id="levelname">First Steps</span><br>COINS <strong id="coins">0</strong> · LIVES <strong id="lives">3</strong></div><div id="hudright"><button class="hudbtn" id="fs">⛶ Fullscreen</button><button class="hudbtn" id="pause">Ⅱ Pause</button></div></div><div id="toast"></div><div id="level-hint"></div>
+<div id="mobile-controls"><div class="ctrlgroup"><button class="ctrl" id="left" aria-label="Move left">◀</button><button class="ctrl" id="right" aria-label="Move right">▶</button></div><div class="ctrlgroup"><button class="ctrl jump" id="jump" aria-label="Jump">JUMP ↑</button></div></div>
+<div class="overlay" id="start"><div class="card"><h1>PLATFORM QUEST</h1><h2>THE REAL CHALLENGE</h2><p>30 individually generated courses across three worlds. Learn the routes, then survive faster crumbling platforms, timed lasers and tighter jumps.</p><p><b>PC:</b> A/D or ←/→ to move; W, ↑ or Space to jump.<br><b>Mobile:</b> Hold the on-screen controls.</p><button class="menu-btn" id="play">▶ START ADVENTURE</button><button class="menu-btn secondary" id="playfs">⛶ START FULLSCREEN</button><p>Progress saves on this device.</p></div></div>
+<div class="overlay hidden" id="levelselect"><div class="card"><h1>WORLD MAP</h1><h2 id="world-title">EASY WORLD</h2><div class="world-tabs"><button class="world-tab active" id="world-easy">EASY<small>Levels 1–10</small></button><button class="world-tab" id="world-medium">MEDIUM<small>Levels 11–20</small></button><button class="world-tab" id="world-hard">HARD<small>Levels 21–30</small></button></div><p id="mapnote">Choose an unlocked stage. Each course has a distinct route.</p><div id="level-grid"></div><button class="menu-btn secondary" id="levelback">← BACK</button></div></div>
+<div class="overlay hidden" id="pausemenu"><div class="card"><h1>PAUSED</h1><p>Take a break, then continue your run.</p><button class="menu-btn" id="resume">▶ RESUME</button><button class="menu-btn secondary" id="restart">↻ RESTART LEVEL</button><button class="menu-btn secondary" id="pauselevels">🗺 WORLD MAP</button><button class="menu-btn secondary" id="menubtn">MAIN MENU</button></div></div>
+<div class="overlay hidden" id="over"><div class="card"><h1>GAME OVER</h1><p>You ran out of lives. Retry the course or choose another unlocked level.</p><p>Coins collected: <b id="overcoins">0</b></p><button class="menu-btn" id="retry">↻ RETRY LEVEL</button><button class="menu-btn secondary" id="overlevels">WORLD MAP</button><button class="menu-btn secondary" id="overmenu">MAIN MENU</button></div></div>
+<div class="overlay hidden" id="victory"><div class="card"><h1>CHAMPION! 🏆</h1><p>You conquered all 30 courses!</p><p>Total coins: <b id="wincoins">0</b></p><button class="menu-btn" id="again">PLAY AGAIN</button><button class="menu-btn secondary" id="winmenu">MAIN MENU</button></div></div>
+</div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('game-canvas'),ctx=canvas.getContext('2d'),container=$('game-container'),W=960,H=540;
+const themes=[
+['Skyline Sprint','#192847','#61e8ff'],['Crystal Caverns','#20203f','#b89cff'],['Pulse Platforms','#172d3d','#6bffda'],['Turbo Towers','#35203d','#ffbd66'],['Phantom Path','#24183f','#ff5de2'],['Molten Circuit','#3a2520','#ff8b55'],['Neon Storm','#172a42','#66a6ff'],['Switchback Run','#24233a','#ffe66d'],['Keymaster Keep','#233427','#b6ff73'],['Twilight Trial','#301b38','#ff5caa'],
+['Moonlit Ruins','#18283c','#8cf4ff'],['Jungle Circuit','#18352f','#79ff9c'],['Frostbite Run','#182c48','#a6e7ff'],['Lava Leap','#40231e','#ff9c55'],['Clockwork City','#24213d','#f4d56e'],['Cloud Kingdom','#202044','#d7b7ff'],['Shadow Bridge','#171a2f','#ff77c8'],['Crystal Rush','#172d39','#7dffed'],['Stormbreaker','#27233c','#ffdf70'],['Obsidian Gauntlet','#281b31','#ff659a'],
+['Razor Skyline','#1a203b','#ff4d6d'],['The Broken Engine','#332019','#ff9c55'],['Laser Labyrinth','#171b3d','#66efff'],['Phantom Furnace','#29152f','#ff54dc'],['Falling Kingdom','#1d2a3c','#a6ffef'],['Viper Switchyard','#20233b','#ffe66d'],['Blackout Run','#101322','#d7b7ff'],['Stormglass Citadel','#1a3041','#7dffed'],['The Last Gauntlet','#351c29','#ff7b6e'],['The Final Portal','#311b3b','#ff4de1']
+];
+let state='menu',idx=0,worldWidth=3200,cameraX=0,elapsed=0,lastTime=0,totalCoins=0,levelCoins=0,lives=3,bestUnlocked=1,bestCoins=0,toastTimer=0,deathLock=false,levelSelectReturn='menu',levelComplete=false;
+let L=null,platforms=[],hazards=[],coins=[],particles=[],goal={},checkpoints=[],checkpoint={x:40,y:420};
+const player={x:40,y:420,w:27,h:35,vx:0,vy:0,onGround:false,facing:1,invul:0,coyote:0,jumpBuffer:0};
+let landingAnim=0,lastPlayerGrounded=false;
+const held={left:false,right:false,jump:false},keyHeld={left:false,right:false,jump:false},input={left:false,right:false,jump:false};
+try{bestUnlocked=Math.max(1,Math.min(30,Number(localStorage.getItem('pq-unlocked-v3')||1)));bestCoins=Number(localStorage.getItem('pq-coins')||0)}catch(e){}
+function save(){try{localStorage.setItem('pq-unlocked-v3',String(bestUnlocked));localStorage.setItem('pq-coins',String(Math.max(bestCoins,totalCoins)))}catch(e){}}
+function syncInput(){for(const k in input)input[k]=held[k]||keyHeld[k]}
+function clearInput(){for(const k in held)held[k]=false;for(const k in keyHeld)keyHeld[k]=false;syncInput();document.querySelectorAll('.ctrl').forEach(b=>b.classList.remove('pressed'))}
+function rect(x,y,w,h,type='solid',extra={}){return {x,y,w,h,type,...extra}}
+function generateLevel(i){
+ const theme=themes[i],plats=[],spikes=[],loot=[],cps=[];
+ // Difficulty ramps gradually through Level 10, rises through the Medium world,
+ // then becomes a demanding precision platformer in the final ten courses.
+ const tier=i<10?0:(i<20?1:2),ramp=i<3?0:(i<10?(i-2)/7:(i<20?1.15+(i-10)*.055:1.75+(i-20)*.085));
+ let seed=(i+1)*7919+104729;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+ const groundY=472;let x=0;
+ const firstW=tier===0?220:190;plats.push(rect(0,groundY,firstW,68,'solid'));
+ const count=14+(tier===2?2:0)+(i%3===1?1:0);
+ let prev=plats[0];
+ for(let j=1;j<=count;j++){
+  const progress=j/count,roll=rand();
+  // Gaps grow by tier, but stay within the normal jump envelope; widths and heights vary per level.
+  const gapBase=tier===0?43+ramp*8:tier===1?57+ramp*5:68+ramp*5;
+  const gap=Math.round(gapBase+rand()*(tier===0?19:tier===1?26:30));
+  const widthMin=tier===0?128:tier===1?108:88;
+  const widthMax=tier===0?205:tier===1?176:150;
+  const width=Math.round(widthMin+rand()*(widthMax-widthMin));
+  x=prev.x+prev.w+gap;
+  const heightStep=tier===0?56:tier===1?73:86;
+  let y=groundY-Math.round(rand()*heightStep);
+  // Avoid long sequences of extreme vertical jumps; routes are challenging but still readable.
+  if(Math.abs(y-prev.y)> (tier===0?68:tier===1?82:92)) y=prev.y+(y>prev.y?1:-1)*(tier===0?52:tier===1?65:72);
+  y=Math.max(330,Math.min(groundY,y));
+  let type='solid';
+  const crumbleChance=i<3?0:(i<10?.12+(i-3)*.035:tier===1?.28+(i-10)*.012:.43+(i-20)*.012);
+  const vanishChance=i<4?.025:i<10?.07+(i-4)*.018:tier===1?.17:.25+(i-20)*.012;
+  if(roll<crumbleChance)type='crumble';else if(roll<crumbleChance+vanishChance)type='vanish';else if(rand()<(tier===0?.07:tier===1?.10:.12))type='bounce';
+  // Distinct per-level seeded routes; upper paths create optional coin risks rather than copying a fixed pattern.
+  const h=width>165?18:16;
+  const plat=rect(x,y,width,h,type,{dir:rand()<.5?-1:1,used:false,crumbleTime:0,falling:false,vanishAt:0,hidden:false,hiddenTime:0});
+  plats.push(plat);
+  const hazardX=prev.x+prev.w+gap*.5;
+  const laserChance=i<3?0:(i<10?.06+(i-3)*.035:tier===1?.24+(i-10)*.012:.38+(i-20)*.018);
+  if(j>1&&rand()<laserChance){
+   // Full-height, narrow laser barriers; the safe window shrinks in later worlds.
+   spikes.push({x:hazardX-2,y:0,w:4,h:540,laser:true,phase:rand()*4.2,hardness:tier});
+  }else if(j>1&&rand()<(i<3?.16:(i<10?.28+(i-3)*.035:(tier===1?.64:.78)))){
+   const sw=Math.max(18,gap*(tier===2?.72:.58));spikes.push({x:prev.x+prev.w+(gap-sw)/2,y:groundY+1,w:sw,h:18,laser:false});
+  }
+  if(rand()<(tier===0?.54:tier===1?.58:.62))loot.push({x:x+width*(.32+rand()*.36),y:y-35-rand()*15,r:8+(tier===2?1:0),collected:false,phase:rand()*8});
+  if(j===Math.floor(count*.34)||j===Math.floor(count*.68))cps.push({x:x+width*.3,y:y-38,used:false});
+  // Optional high route geometry differs by level and becomes riskier as difficulty rises.
+  if(j>=2&&j<count&&((j+i)% (tier===0?4:tier===1?3:2)===0)){
+   const upY=Math.max(260,y-(tier===0?70+rand()*25:85+rand()*35));
+   const upX=prev.x+prev.w+gap*(.28+rand()*.22);
+   const upW=Math.round((tier===0?66:tier===1?54:44)+rand()*(tier===0?28: tier===1?25:20));
+   const upType=rand()<(tier===0?.16:tier===1?.42:.62)?(rand()<.58?'vanish':'crumble'):'solid';
+   plats.push(rect(upX,upY,upW,14,upType,{dir:rand()<.5?-1:1,used:false,crumbleTime:0,falling:false,vanishAt:0,hidden:false,hiddenTime:0}));
+   if(rand()<.65)loot.push({x:upX+upW/2,y:upY-24,r:7,collected:false,phase:rand()*8});
+  }
+  prev=plat;
+ }
+ const endX=prev.x+prev.w+(tier===0?28: tier===1?35:42);plats.push(rect(endX,groundY,180,68,'solid'));
+ const goal={x:endX+112,y:groundY-62,w:32,h:62};
+ const hints=tier===0?['Learn the rhythm and read the gaps.','Look for optional high routes and coins.','Watch each platform before committing.']:tier===1?['Keep moving: some surfaces will not wait.','Use checkpoints before the tricky stretches.','Time the laser windows and avoid rushed jumps.']:['No idle landing: plan the next jump before touching down.','Lasers and unstable platforms overlap in this world.','Precision matters more than speed; watch each hazard cycle.'];
+ return {name:theme[0],bg:theme[1],accent:theme[2],hint:hints[(i+(i%3))%hints.length],platforms:plats,spikes,coins:loot,checkpoints:cps,goal,width:goal.x+goal.w+120,tier};
+}
+const levels=themes.map((_,i)=>generateLevel(i));
+function hideMenus(){['start','levelselect','pausemenu','over','victory'].forEach(id=>$(id).classList.add('hidden'))}
+function showToast(text){$('toast').textContent=text;$('toast').classList.add('show');toastTimer=100}
+function hud(){ $('level').textContent=idx+1;$('levelname').textContent=L.name;$('coins').textContent=totalCoins;$('lives').textContent=lives;$('level-hint').textContent=L.hint; }
+function loadLevel(n){idx=Math.max(0,Math.min(29,n));L=levels[idx];worldWidth=L.width;cameraX=0;platforms=L.platforms.map(p=>({...p,crumbleTime:0,falling:false,used:false,hidden:false,hiddenTime:0,vanishAt:0}));hazards=L.spikes.map(s=>({...s}));coins=L.coins.map(c=>({...c}));checkpoints=L.checkpoints.map(c=>({...c}));goal={...L.goal};checkpoint={x:35,y:groundSpawnY()};player.x=checkpoint.x;player.y=checkpoint.y;player.vx=player.vy=0;player.onGround=false;player.coyote=0;player.jumpBuffer=0;player.invul=0;landingAnim=0;lastPlayerGrounded=false;elapsed=0;deathLock=false;particles=[];levelCoins=0;clearInput();hud();showToast('LEVEL '+(idx+1)+' · '+L.name)}
+function groundSpawnY(){return 472-35;}
+let mapPage=0;
+function openMap(from='menu',note='Choose an unlocked stage. Each course has a distinct route.',page=null){levelSelectReturn=from;clearInput();hideMenus();state='select';mapPage=page===null?Math.floor(idx/10):Math.max(0,Math.min(2,page));renderMap(note);$('levelselect').classList.remove('hidden')}
+function renderMap(note='Choose an unlocked stage. Each course has a distinct route.'){
+ $('mapnote').textContent=note;
+ const titles=['EASY WORLD','MEDIUM WORLD','HARD WORLD'],ids=['world-easy','world-medium','world-hard'];
+ $('world-title').textContent=titles[mapPage];ids.forEach((id,n)=>$(id).classList.toggle('active',n===mapPage));
+ const grid=$('level-grid');grid.innerHTML='';
+ for(let i=mapPage*10;i<mapPage*10+10;i++){
+  const d=levels[i],b=document.createElement('button'),ok=i+1<=bestUnlocked;
+  b.className='level-tile'+(ok?' unlocked':'')+(i===idx?' current':'');b.disabled=!ok;
+  b.innerHTML='<strong>'+(ok?'◆ ':'🔒 ')+(i+1)+'</strong><span>'+d.name+'</span>';
+  b.addEventListener('click',()=>{if(ok){totalCoins=0;lives=3;hideMenus();state='playing';loadLevel(i)}});grid.appendChild(b)
+ }
+}
+['easy','medium','hard'].forEach((name,i)=>$('world-'+name).addEventListener('click',()=>{mapPage=i;renderMap(i===0?'Levels 1–10 · Learn the mechanics and build your timing.':i===1?'Levels 11–20 · More unstable platforms, tighter routes and laser timing.':'Levels 21–30 · Advanced routes, rapid crumbling and demanding hazard combinations.')}));
+function mainMenu(){clearInput();state='menu';hideMenus();$('start').classList.remove('hidden')}
+function pauseGame(){if(state!=='playing')return;state='paused';clearInput();$('pausemenu').classList.remove('hidden')}
+function resumeGame(){if(state!=='paused')return;state='playing';$('pausemenu').classList.add('hidden');clearInput()}
+function restart(){if(state==='menu'||state==='select')return;totalCoins=Math.max(0,totalCoins-levelCoins);hideMenus();state='playing';loadLevel(idx)}
+function gameOver(){state='over';clearInput();$('overcoins').textContent=totalCoins;$('over').classList.remove('hidden')}
+function completeLevel(){if(state!=='playing')return;state='select';bestUnlocked=Math.max(bestUnlocked,Math.min(30,idx+2));bestCoins=Math.max(bestCoins,totalCoins);save();clearInput();burst(player.x+player.w/2,player.y+player.h/2,L.accent,30);const note=idx===29?'🏆 All 30 levels complete! Pick a world to replay.':'✓ Level '+(idx+1)+' complete! Level '+(idx+2)+' is unlocked. Choose when you are ready.';openMap('menu',note,Math.floor((bestUnlocked-1)/10))}
+function burst(x,y,color,n=12){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=1+Math.random()*3;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1,life:25+Math.random()*20,max:45,color,size:2+Math.random()*3})}}
+function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function solids(){return platforms.filter(p=>!p.hidden&&!p.falling)}
+function die(){if(deathLock||state!=='playing')return;deathLock=true;lives--;hud();clearInput();burst(player.x+player.w/2,player.y+player.h/2,'#ff4d83',18);if(lives<=0){gameOver();return}player.x=checkpoint.x;player.y=checkpoint.y;player.vx=player.vy=0;player.invul=90;player.onGround=false;player.coyote=0;setTimeout(()=>deathLock=false,450)}
+function update(dt){elapsed+=dt;if(player.invul>0)player.invul--;if(input.jump)player.jumpBuffer=8;else player.jumpBuffer=Math.max(0,player.jumpBuffer-1);if(player.onGround)player.coyote=7;else player.coyote=Math.max(0,player.coyote-1);
+ const speed=4.35;player.vx=(input.right?speed:0)-(input.left?speed:0);if(player.vx)player.facing=Math.sign(player.vx);
+ if(player.jumpBuffer>0&&player.coyote>0){player.vy=-12.6;player.onGround=false;player.coyote=0;player.jumpBuffer=0;burst(player.x+player.w/2,player.y+player.h,'#b6faff',4)}
+ const oldX=player.x;player.x+=player.vx;player.x=Math.max(0,Math.min(worldWidth-player.w,player.x));
+ for(const p of solids()){if(overlap(player,p)){if(player.vx>0)player.x=p.x-player.w;else if(player.vx<0)player.x=p.x+p.w}}
+ const oldY=player.y;player.vy=Math.min(player.vy+.55,14);player.y+=player.vy;player.onGround=false;
+ for(const p of solids())if(overlap(player,p)){if(player.vy>=0&&oldY+player.h<=p.y+Math.max(4,player.vy+1)){player.y=p.y-player.h;player.vy=0;player.onGround=true;if(p.type==='bounce'){player.vy=-16;player.onGround=false;burst(player.x+player.w/2,p.y,L.accent,10)}if(p.type==='crumble'){p.crumbleTime++;if(p.crumbleTime>(idx<3?999:idx<10?Math.max(24,38-(idx-3)*2):idx<20?18-Math.min(5,Math.floor((idx-10)/3)):Math.max(7,12-Math.floor((idx-20)/3))))p.falling=true}if(p.type==='vanish'&&!p.vanishAt)p.vanishAt=elapsed+(idx<10?.65:idx<20?.48:.32);}else if(player.vy<0&&oldY>=p.y+p.h-2){player.y=p.y+p.h;player.vy=0}}
+ for(const p of platforms){if(p.type==='crumble'&&p.falling)p.y+=(idx<10?3.2:idx<20?5.1:7.4);if(p.type==='vanish'&&p.vanishAt&&elapsed>p.vanishAt&&!overlap(player,p)){p.hidden=true;p.hiddenTime=elapsed+(idx<10?1.3:idx<20?.95:.7);p.vanishAt=0}if(p.hidden&&elapsed>p.hiddenTime)p.hidden=false;}
+ if(player.onGround&&!lastPlayerGrounded)landingAnim=8;lastPlayerGrounded=player.onGround;if(landingAnim>0)landingAnim--;
+ for(const h of hazards){if(h.laser){const cycle=(elapsed+(h.phase||0))%4.2;h.active=cycle<(idx<10?2.45:idx<20?2.9:3.25);if(h.active&&overlap(player,{x:h.x-2,y:0,w:8,h:H})){die();return}}else if(overlap(player,h)){die();return}}if(player.y>H+70){die();return}
+ for(const c of checkpoints)if(!c.used&&overlap(player,{x:c.x,y:c.y,w:25,h:35})){c.used=true;checkpoint={x:c.x,y:c.y};showToast('CHECKPOINT!');burst(c.x,c.y,L.accent,12)}
+ for(const c of coins){if(c.collected)continue;const cy=c.y+Math.sin(elapsed*4+c.phase)*3;if(overlap(player,{x:c.x-c.r,y:cy-c.r,w:c.r*2,h:c.r*2})){c.collected=true;totalCoins++;levelCoins++;$('coins').textContent=totalCoins;burst(c.x,cy,'#ffe66d',9)}}
+ if(overlap(player,goal)){completeLevel();return}
+ cameraX=Math.max(0,Math.min(worldWidth-W,player.x-W*.34));
+ for(const p of particles){p.x+=p.vx;p.y+=p.vy;p.vy+=.08;p.life--}particles=particles.filter(p=>p.life>0);
+}
+function drawBackground(){const gr=ctx.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#15123a');gr.addColorStop(.65,L.bg);gr.addColorStop(1,'#060815');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);ctx.save();ctx.globalAlpha=.24;ctx.strokeStyle=L.accent;const off=(elapsed*18+cameraX*.18)%80;for(let x=-80+off;x<W+80;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let i=0;i<34;i++){const x=((i*173-cameraX*.25)%(W+80)+(W+80))%(W+80),y=40+(i*79)%260;ctx.fillStyle='#d7f7ff';ctx.fillRect(x,y,2,2)}ctx.restore();ctx.save();ctx.globalAlpha=.25;for(let i=0;i<24;i++){const bw=18+(i*13)%35,bh=35+(i*29)%95,x=((i*46-cameraX*.2)%(W+50)+(W+50))%(W+50)-20;ctx.fillStyle=i%2?'#48f6ff':'#ff4de1';ctx.fillRect(x,H-bh,bw,bh)}ctx.restore()}
+function drawPlatform(p){let body='#252c58',top=L.accent,glow=L.accent;if(p.type==='vanish'){body='#4a176c';top='#ff4de1';glow=top}if(p.type==='bounce'){body='#653a16';top='#ffe66d';glow=top}if(p.type==='crumble'){body='#50356b';top='#c9a0ff';glow=top}ctx.save();ctx.shadowBlur=12;ctx.shadowColor=glow;ctx.fillStyle=body;ctx.fillRect(p.x,p.y,p.w,p.h);ctx.shadowBlur=0;ctx.fillStyle=top;ctx.fillRect(p.x,p.y,p.w,3);ctx.fillStyle='#ffffff35';ctx.fillRect(p.x+3,p.y+5,Math.max(0,p.w-6),1);if(p.type==='bounce'){ctx.fillStyle='#fff4c2';ctx.fillRect(p.x+7,p.y-3,p.w-14,4)}if(p.type==='crumble'&&p.crumbleTime>(idx<10?18:idx<20?8:4)){ctx.strokeStyle='#f5d9ff';ctx.beginPath();ctx.moveTo(p.x+p.w*.3,p.y+3);ctx.lineTo(p.x+p.w*.45,p.y+10);ctx.lineTo(p.x+p.w*.65,p.y+3);ctx.stroke()}ctx.restore()}
+function drawPlayer(){
+ // Minimal cube hero: only its appearance changes; the original collision box stays untouched.
+ const running=player.onGround&&Math.abs(player.vx)>.1;
+ const airborne=!player.onGround;
+ const phase=elapsed*(running?14:4);
+ const bob=running?Math.abs(Math.sin(phase))*1.2:Math.sin(elapsed*2.5)*.35;
+ const squash=landingAnim>0?Math.sin((landingAnim/8)*Math.PI)*1.5:0;
+ const jumpTilt=airborne?Math.max(-.07,Math.min(.07,-player.vy*.006)):0;
+ ctx.save();
+ ctx.translate(player.x+player.w/2,player.y+player.h/2+bob+squash);
+ ctx.rotate(jumpTilt);
+ // A clean, compact cube with a dark outline and a cool cyan edge glow.
+ const w=player.w+1,h=player.h-1,x=-w/2,y=-h/2;
+ ctx.shadowColor='#48f6ff';ctx.shadowBlur=running?13:8;
+ ctx.fillStyle='#202b49';ctx.strokeStyle='#6ff7ff';ctx.lineWidth=1.6;
+ ctx.beginPath();ctx.roundRect(x,y,w,h,4);ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+ // Slight top-face highlight gives the cube a crisp game-sprite look.
+ ctx.fillStyle='#344668';ctx.beginPath();ctx.moveTo(x+3,y+1);ctx.lineTo(x+w-3,y+1);ctx.lineTo(x+w-5,y+5);ctx.lineTo(x+5,y+5);ctx.closePath();ctx.fill();
+ // Two long, bright eyes — the defining feature of the character.
+ const eyeY=-5.5,eyeW=5.2,eyeH=13.5,eyeGap=3.5;
+ for(const ex of [-eyeGap/2-eyeW/2,eyeGap/2+eyeW/2]){
+   ctx.fillStyle='#071426';ctx.beginPath();ctx.roundRect(ex-eyeW/2,eyeY-eyeH/2,eyeW,eyeH,eyeW/2);ctx.fill();
+   ctx.fillStyle='#eaffff';ctx.beginPath();ctx.roundRect(ex-eyeW/2+1,eyeY-eyeH/2+1,eyeW-2,eyeH-2,2);ctx.fill();
+   ctx.fillStyle='#48f6ff';ctx.beginPath();ctx.roundRect(ex-eyeW/2+1.5,eyeY-eyeH/2+2,eyeW-3,eyeH*.62,2);ctx.fill();
+ }
+ // Tiny side accents make the cube feel intentional without adding a face or limbs.
+ ctx.fillStyle='#ff4de1';ctx.fillRect(x+2,y+h-5,4,2);
+ ctx.fillStyle='#48f6ff';ctx.fillRect(x+w-6,y+h-5,4,2);
+ // A restrained motion streak while airborne; no changes to physics or collision.
+ if(airborne){ctx.globalAlpha=.45;ctx.fillStyle='#48f6ff';ctx.fillRect(-w/2-4,2,2,5);ctx.fillRect(-w/2-7,6,2,3);ctx.globalAlpha=1;}
+ ctx.restore();
+}
+function draw(){drawBackground();ctx.save();ctx.translate(-cameraX,0);for(const p of platforms)if(!p.hidden)drawPlatform(p);for(const h of hazards){ctx.save();if(h.laser){const cycle=(elapsed+(h.phase||0))%4.2;const active=cycle<(idx<10?2.45:idx<20?2.9:3.25);if(active){ctx.shadowBlur=10;ctx.shadowColor='#ff315f';ctx.fillStyle='#ff315f';ctx.fillRect(h.x-1.5,0,3,H);ctx.fillStyle='#ffd9e3';ctx.fillRect(h.x,0,1,H);ctx.fillStyle='#ff315f';ctx.fillRect(h.x-5,Math.max(0,h.y),10,5);ctx.fillRect(h.x-5,H-5,10,5)}else{ctx.globalAlpha=.25;ctx.fillStyle='#ff8ca8';ctx.fillRect(h.x-1,0,2,H);ctx.fillStyle='#ffb6cb';ctx.fillRect(h.x-4,0,8,4);ctx.fillRect(h.x-4,H-4,8,4)}}else{const count=Math.max(1,Math.floor(h.w/14)),sw=h.w/count;ctx.shadowBlur=8;ctx.shadowColor='#ff315f';for(let i=0;i<count;i++){ctx.beginPath();ctx.moveTo(h.x+i*sw,h.y+h.h);ctx.lineTo(h.x+(i+.5)*sw,h.y);ctx.lineTo(h.x+(i+1)*sw,h.y+h.h);ctx.closePath();ctx.fillStyle='#ff315f';ctx.fill();ctx.strokeStyle='#ffb4d2';ctx.stroke()}}ctx.restore()}
+ for(const c of coins){if(c.collected)continue;const y=c.y+Math.sin(elapsed*4+c.phase)*3;ctx.save();ctx.shadowBlur=14;ctx.shadowColor='#ffe66d';ctx.fillStyle='#ffe66d';ctx.beginPath();ctx.arc(c.x,y,c.r,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff8be';ctx.stroke();ctx.restore()}
+ for(const c of checkpoints){ctx.fillStyle=c.used?'#6bffb5':'#ffe66d';ctx.fillRect(c.x,c.y,5,35);ctx.beginPath();ctx.moveTo(c.x+5,c.y);ctx.lineTo(c.x+24,c.y+7);ctx.lineTo(c.x+5,c.y+14);ctx.fill()}
+ ctx.save();ctx.shadowBlur=25;ctx.shadowColor=L.accent;ctx.fillStyle=L.accent;ctx.fillRect(goal.x,goal.y,goal.w,goal.h);ctx.shadowBlur=0;ctx.fillStyle='#080817';ctx.beginPath();ctx.ellipse(goal.x+goal.w/2,goal.y+goal.h/2,goal.w*.27,goal.h*.36,0,0,Math.PI*2);ctx.fill();ctx.restore();
+ for(const p of particles){ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,p.size,p.size)}ctx.globalAlpha=1;
+ if(player.invul===0||Math.floor(player.invul/5)%2===0)drawPlayer();ctx.restore();ctx.fillStyle='#f3f7ffdd';ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillText(L.name+'  ·  '+Math.round(Math.min(100,(player.x/worldWidth)*100))+'%',W/2,25)}
+function loop(ts){const dt=lastTime?Math.min((ts-lastTime)/1000,.035):0;lastTime=ts;if(state==='playing')update(dt);else{for(const p of particles){p.x+=p.vx;p.y+=p.vy;p.vy+=.08;p.life--}particles=particles.filter(p=>p.life>0)}if(toastTimer>0&&--toastTimer===0)$('toast').classList.remove('show');draw();requestAnimationFrame(loop)}
+window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowleft','arrowright','arrowup',' ','a','d','w'].includes(k))e.preventDefault();if(k==='arrowleft'||k==='a')keyHeld.left=true;if(k==='arrowright'||k==='d')keyHeld.right=true;if(k==='arrowup'||k==='w'||k===' ')keyHeld.jump=true;if(k==='escape'||k==='p'){if(state==='playing')pauseGame();else if(state==='paused')resumeGame()}syncInput()});window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k==='arrowleft'||k==='a')keyHeld.left=false;if(k==='arrowright'||k==='d')keyHeld.right=false;if(k==='arrowup'||k==='w'||k===' ')keyHeld.jump=false;syncInput()});
+function bindHold(id,k){const b=$(id),down=e=>{e.preventDefault();held[k]=true;b.classList.add('pressed');syncInput();try{b.setPointerCapture(e.pointerId)}catch(_){}},up=e=>{if(e)e.preventDefault();held[k]=false;b.classList.remove('pressed');syncInput()};b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up);b.addEventListener('contextmenu',e=>e.preventDefault())}bindHold('left','left');bindHold('right','right');bindHold('jump','jump');window.addEventListener('blur',clearInput);document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInput()});
+function isFS(){return document.fullscreenElement===container||container.classList.contains('expanded')}function updateFS(){$('fs').textContent=isFS()?'⛶ Exit Fullscreen':'⛶ Fullscreen'}async function toggleFS(){try{if(document.fullscreenElement===container){await document.exitFullscreen();container.classList.remove('expanded')}else if(container.classList.contains('expanded'))container.classList.remove('expanded');else if(container.requestFullscreen)await container.requestFullscreen();else container.classList.add('expanded')}catch(e){container.classList.add('expanded')}updateFS()}
+$('play').addEventListener('click',()=>openMap('menu'));$('playfs').addEventListener('click',async()=>{await toggleFS();openMap('menu')});$('fs').addEventListener('click',toggleFS);$('pause').addEventListener('click',()=>state==='playing'?pauseGame():resumeGame());$('resume').addEventListener('click',resumeGame);$('restart').addEventListener('click',restart);$('pauselevels').addEventListener('click',()=>openMap('paused'));$('levelback').addEventListener('click',()=>{hideMenus();if(levelSelectReturn==='paused'){state='paused';$('pausemenu').classList.remove('hidden')}else{state='menu';$('start').classList.remove('hidden')}});$('menubtn').addEventListener('click',mainMenu);$('retry').addEventListener('click',()=>{lives=3;hideMenus();state='playing';loadLevel(idx)});$('overlevels').addEventListener('click',()=>openMap('menu','Choose an unlocked level to play.'));$('overmenu').addEventListener('click',mainMenu);$('again').addEventListener('click',()=>openMap('menu'));$('winmenu').addEventListener('click',mainMenu);document.addEventListener('fullscreenchange',updateFS);
+// Initialise a safe preview behind the title screen.
+L=levels[0];platforms=L.platforms;hazards=L.spikes;coins=L.coins;checkpoints=L.checkpoints;goal=L.goal;hud();requestAnimationFrame(loop);
+})();
+</script></body></html>
